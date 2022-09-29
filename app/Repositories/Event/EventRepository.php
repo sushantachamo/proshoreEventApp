@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Illuminate\Validation\ValidationException;
+use Carbon\Carbon;
 
 
 /**
@@ -41,40 +42,26 @@ class EventRepository extends Repository
     {
         $searchParams = $request->all();
         $limit        = Arr::get($searchParams, 'limit', 10);
-        $keyword      = Arr::get($searchParams, 'keyword', '');
+        $filter      = Arr::get($searchParams, 'filter', '');
         $query        = $this->model->newQuery();
 
-
-
-        // if (!empty($keyword)) {
-        //     $query->where(function (Builder $query) use ($keyword) {
-        //         $query->where('occasion_name', 'LIKE', '%' . $keyword . '%')
-        //             ->orwhereHas(('design'), function ($q) use ($keyword) {
-        //                 $q->where('name', 'LIKE', '%' . $keyword . '%');
-        //             });
-        //     });
-        // }
-
-        // if (isset($status)) {
-        //     $query->where('status', '=', $status);
-        // }
-
-        // if (isset($companyId)) {
-        //     $query->where('company_id', '=', $companyId);
-        // }
-
-        // if (isset($type)) {
-        //     $query->where('type', '=', $type);
-        // }
-
-        // if (isset($occasionId)) {
-        //     $query->where(function (Builder $query) use ($occasionId) {
-        //         $query->whereHas(('occasion'), function ($q) use ($occasionId) {
-        //             $q->where('id', '=', $occasionId);
-        //         });
-        //     });
-        // }
-        return $query->latest()->get();
+        if (!empty($filter)) {
+            $query->where(function (Builder $query) use ($filter) {
+                $today = Carbon::today();
+                if($filter == 'finshedEvents') {
+                    $query->where('end_date', '<', $today->format('Y-m-d'));
+                }
+                else if($filter == 'finshedEventsLast7Days') {
+                    $query->whereBetween('end_date', [$today->subDay(7)->format('Y-m-d'), $today->addDay(7)->format('Y-m-d')]);
+                }
+                else if($filter == 'upcomingEvents') {
+                    $query->where('start_date', '>', $today->format('Y-m-d'));
+                }
+                else if($filter == 'upcomingEventsWithIn7days') {
+                    $query->whereBetween('start_date', [$today->format('Y-m-d'), $today->addDay(7)->format('Y-m-d')]);
+                }
+            });
+        }
         return $query->latest()->paginate($limit);
     }
 
