@@ -9,9 +9,6 @@ export default function List() {
 
     const [events, setEvents] = useState([])
     const [filters, setFilters] = useState([]);
-    // state = {
-    //     filters : ""
-    // }
 
     useEffect(()=>{
         fetchEvents() 
@@ -27,11 +24,15 @@ export default function List() {
         })
     }
 
-    const handleChange = (event) => {
-        setFilters(event.target.value, event.target.value);
-        // this.state.filters = event.target.value
-    
-        fetchEvents()
+    const handleChange =async (event) => {
+        setFilters(event.target.value)
+        var parma = ''
+        if(!isEmpty(event.target.value)) {
+            parma = "?filter="+event.target.value
+        }
+        await axios.get(`http://localhost:8000/event${parma}`).then(({data})=>{
+            setEvents(data.data)
+        })
     };
     
 
@@ -78,7 +79,7 @@ export default function List() {
                     <option value="finshedEvents">Finshed Events</option>
                     <option value="finshedEventsLast7Days">Finshed Events Last 7 Days</option>
                     <option value="upcomingEvents">Upcoming Events</option>
-                    <option value="upcomingEventsLast7Days">Upcoming Events Last 7 Days</option>
+                    <option value="upcomingEventsWithIn7days">Upcoming Events Last 7 Days</option>
                 </select>
             </label>
                 <Link className='btn btn-primary mb-2 float-end' to={"/create/event"}>

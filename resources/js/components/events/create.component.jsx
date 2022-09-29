@@ -55,7 +55,7 @@ export default function CreateEvent() {
         });
         var errors = '';
         setValidationErrorMessage(response.data.message);
-        Object.entries(validationErrorMessage).map(([key, value]) => (errors += value +'\n')) 
+        Object.entries(response.data.message).map(([key, value]) => (errors += value +'\n')) 
         toastMixin.fire({
           title: errors,
           icon: 'error'
