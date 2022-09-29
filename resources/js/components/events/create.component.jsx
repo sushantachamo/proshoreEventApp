@@ -8,11 +8,13 @@ import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom'
 
 export default function CreateEvent() {
-  const navigate = useNavigate();
+	const navigate = useNavigate();
 
-  const [title, setTitle] = useState("")
-  const [description, setDescription] = useState("")
-  const [validationError,setValidationError] = useState({})
+	const [title, setTitle] = useState("")
+	const [description, setDescription] = useState("")
+	const [startDate, setStartDate] = useState("")
+	const [endDate, setEndDate] = useState("")
+	const [validationError,setValidationError] = useState({})
 
 
   const CreateEvent = async (e) => {
@@ -22,6 +24,8 @@ export default function CreateEvent() {
 
     formData.append('title', title)
     formData.append('description', description)
+	formData.append('startDate', startDate)
+	formData.append('endDate', endDate)
 
     await axios.post(`http://localhost:8000/event`, formData).then(({data})=>{
       Swal.fire({
@@ -88,6 +92,29 @@ export default function CreateEvent() {
                         </Form.Group>
                       </Col>
                   </Row>
+
+                  	<Row>
+						<Col>
+							<Form.Group controlId="startDate">
+								<Form.Label>Start Date</Form.Label>
+								<Form.Control type="date" value={startDate} onChange={(event)=>{
+										setStartDate(event.target.value)
+									}}/>
+							</Form.Group>
+						</Col>
+                  	</Row>
+
+					  <Row>
+						<Col>
+							<Form.Group controlId="endDate">
+								<Form.Label>End Date</Form.Label>
+								<Form.Control type="date" value={endDate} onChange={(event)=>{
+										setEndDate(event.target.value)
+									}}/>
+							</Form.Group>
+						</Col>
+                  	</Row>
+
                   <Button variant="primary" className="mt-2" size="lg" block="block" type="submit">
                     Save
                   </Button>

@@ -14,7 +14,8 @@ export default function EditUser() {
 
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
-  const [image, setImage] = useState(null)
+  const [startDate, setStartDate] = useState("")
+  const [endDate, setEndDate] = useState("")
   const [validationError,setValidationError] = useState({})
 
   useEffect(()=>{
@@ -23,9 +24,11 @@ export default function EditUser() {
 
   const fetchEvent = async () => {
     await axios.get(`http://localhost:8000/event/${id}`).then(({data})=>{
-      const { title, description } = data.data
+      const { title, description, startDate, endDate } = data.data
       setTitle(title)
       setDescription(description)
+      setStartDate(startDate)
+      setEndDate(endDate)
     }).catch(({response:{data}})=>{
       Swal.fire({
         text:data.message,
@@ -34,9 +37,7 @@ export default function EditUser() {
     })
   }
 
-  const changeHandler = (event) => {
-		setImage(event.target.files[0]);
-	};
+
 
   const UpdateEvent = async (e) => {
     e.preventDefault();
@@ -45,9 +46,7 @@ export default function EditUser() {
     formData.append('_method', 'PATCH');
     formData.append('title', title)
     formData.append('description', description)
-    if(image!==null){
-      formData.append('image', image)
-    }
+
 
     await axios.post(`http://localhost:8000/event/${id}`, formData).then(({data})=>{
       Swal.fire({
@@ -114,6 +113,27 @@ export default function EditUser() {
                         </Form.Group>
                       </Col>
                   </Row>
+                  <Row>
+						<Col>
+							<Form.Group controlId="startDate">
+								<Form.Label>Start Date</Form.Label>
+								<Form.Control type="date" value={startDate} onChange={(event)=>{
+										setStartDate(event.target.value)
+									}}/>
+							</Form.Group>
+						</Col>
+                  	</Row>
+
+					  <Row>
+						<Col>
+							<Form.Group controlId="endDate">
+								<Form.Label>End Date</Form.Label>
+								<Form.Control type="date" value={endDate} onChange={(event)=>{
+										setEndDate(event.target.value)
+									}}/>
+							</Form.Group>
+						</Col>
+                  	</Row>
                   <Button variant="primary" className="mt-2" size="lg" block="block" type="submit">
                     Update
                   </Button>
