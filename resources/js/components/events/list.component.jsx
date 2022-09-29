@@ -3,20 +3,37 @@ import { Link } from 'react-router-dom';
 import Button from 'react-bootstrap/Button'
 import axios from 'axios';
 import Swal from 'sweetalert2'
+import { isEmpty } from 'lodash';
 
 export default function List() {
 
     const [events, setEvents] = useState([])
+    const [filters, setFilters] = useState([]);
+    // state = {
+    //     filters : ""
+    // }
 
     useEffect(()=>{
         fetchEvents() 
     },[])
 
     const fetchEvents = async () => {
-        await axios.get(`http://localhost:8000/event`).then(({data})=>{
+        var parma = ''
+        if(!isEmpty(filters)) {
+            parma = "?filter="+filters
+        }
+        await axios.get(`http://localhost:8000/event${parma}`).then(({data})=>{
             setEvents(data.data)
         })
     }
+
+    const handleChange = (event) => {
+        setFilters(event.target.value, event.target.value);
+        // this.state.filters = event.target.value
+    
+        fetchEvents()
+    };
+    
 
     const deleteEvent = async (id) => {
         const isConfirm = await Swal.fire({
@@ -52,7 +69,18 @@ export default function List() {
     return (
       <div className="container">
           <div className="row">
+          
             <div className='col-12'>
+            <label >
+                Event Filter
+                <select value={filters} onChange={handleChange}>
+                    <option value="">Select</option>
+                    <option value="finshedEvents">Finshed Events</option>
+                    <option value="finshedEventsLast7Days">Finshed Events Last 7 Days</option>
+                    <option value="upcomingEvents">Upcoming Events</option>
+                    <option value="upcomingEventsLast7Days">Upcoming Events Last 7 Days</option>
+                </select>
+            </label>
                 <Link className='btn btn-primary mb-2 float-end' to={"/create/event"}>
                     Create Event
                 </Link>
@@ -63,8 +91,10 @@ export default function List() {
                         <table className="table table-bordered mb-0 text-center">
                             <thead>
                                 <tr>
-                                    <th>Title</th>
-                                    <th>Description</th>
+                                    <th>Event Title</th>
+                                    <th>Event Description</th>
+                                    <th>Event Start Date</th>
+                                    <th>Event End date</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -75,6 +105,8 @@ export default function List() {
                                             <tr key={key}>
                                                 <td>{row.title}</td>
                                                 <td>{row.description}</td>
+                                                <td>{row.startDate}</td>
+                                                <td>{row.endDate}</td>
                                                 <td>
                                                     <Link to={`/edit/event/${row.id}`} className='btn btn-success me-2'>
                                                         Edit
