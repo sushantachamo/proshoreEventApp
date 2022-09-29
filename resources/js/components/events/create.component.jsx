@@ -6,6 +6,7 @@ import Col from 'react-bootstrap/Col';
 import axios from 'axios'
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom'
+import { isSet } from "lodash";
 
 export default function CreateEvent() {
 	const navigate = useNavigate();
@@ -15,6 +16,8 @@ export default function CreateEvent() {
 	const [startDate, setStartDate] = useState("")
 	const [endDate, setEndDate] = useState("")
 	const [validationError,setValidationError] = useState({})
+  const [validationErrorMessage,setValidationErrorMessage] = useState({})
+
 
 
   const CreateEvent = async (e) => {
@@ -24,8 +27,8 @@ export default function CreateEvent() {
 
     formData.append('title', title)
     formData.append('description', description)
-	formData.append('startDate', startDate)
-	formData.append('endDate', endDate)
+	  formData.append('startDate', startDate)
+	  formData.append('endDate', endDate)
 
     await axios.post(`http://localhost:8000/event`, formData).then(({data})=>{
       Swal.fire({
@@ -37,10 +40,27 @@ export default function CreateEvent() {
       if(response.status===422){
         setValidationError(response.data.errors)
       }else{
-        Swal.fire({
-          text:response.data.message,
-          icon:"error"
-        })
+        var toastMixin = Swal.mixin({
+          toast: true,
+          icon: 'success',
+          title: 'General Title',
+          position: 'top-right',
+          showConfirmButton: false,
+          timer: 1500,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+          }
+        });
+        var errors = '';
+        setValidationErrorMessage(response.data.message);
+        Object.entries(validationErrorMessage).map(([key, value]) => (errors += value +'\n')) 
+        toastMixin.fire({
+          title: errors,
+          icon: 'error'
+        });
+        
       }
     })
   }
