@@ -43,6 +43,20 @@ export default function EditUser() {
 
   const UpdateEvent = async (e) => {
     e.preventDefault();
+    
+    var toastMixin = Swal.mixin({
+      toast: true,
+      icon: 'success',
+      title: 'General Title',
+      position: 'top-right',
+      showConfirmButton: false,
+      timer: 1500,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer)
+        toast.addEventListener('mouseleave', Swal.resumeTimer)
+      }
+    });
 
     const formData = new FormData()
     formData.append('_method', 'PATCH');
@@ -51,6 +65,29 @@ export default function EditUser() {
     formData.append('startDate', startDate)
 	  formData.append('endDate', endDate)
 
+    let errorMsg = ''
+
+    if(title === '') {
+      errorMsg += 'Event Title is Required'+ '\n'
+    }
+
+    if(description === '') {
+      errorMsg += 'Event Description is Required'+ '\n'
+    }
+
+    if(startDate === '') {
+      errorMsg += 'Event Start Date is Required'+ '\n'
+    }
+
+    if(endDate === '') {
+      errorMsg += 'Event End Date is Required'+ '\n'
+    }
+    if(errorMsg) {
+      return toastMixin.fire({
+        title: errorMsg,
+        icon: 'error'
+      });
+    }
 
     await axios.post(`http://localhost:8000/api/event/${id}`, formData).then(({data})=>{
       Swal.fire({
@@ -62,19 +99,7 @@ export default function EditUser() {
       if(response.status===422){
         setValidationError(response.data.errors)
       }else{
-        var toastMixin = Swal.mixin({
-          toast: true,
-          icon: 'success',
-          title: 'General Title',
-          position: 'top-right',
-          showConfirmButton: false,
-          timer: 1500,
-          timerProgressBar: true,
-          didOpen: (toast) => {
-            toast.addEventListener('mouseenter', Swal.stopTimer)
-            toast.addEventListener('mouseleave', Swal.resumeTimer)
-          }
-        });
+        
         var errors = '';
         setValidationErrorMessage(response.data.message);
         Object.entries(response.data.message).map(([key, value]) => (errors += value +'\n')) 

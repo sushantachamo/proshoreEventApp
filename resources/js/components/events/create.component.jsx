@@ -8,6 +8,7 @@ import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom'
 import { isSet } from "lodash";
 
+
 export default function CreateEvent() {
 	const navigate = useNavigate();
 
@@ -18,10 +19,21 @@ export default function CreateEvent() {
 	const [validationError,setValidationError] = useState({})
   const [validationErrorMessage,setValidationErrorMessage] = useState({})
 
-
-
   const CreateEvent = async (e) => {
     e.preventDefault();
+    var toastMixin = Swal.mixin({
+      toast: true,
+      icon: 'success',
+      title: 'General Title',
+      position: 'top-right',
+      showConfirmButton: false,
+      timer: 1500,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer)
+        toast.addEventListener('mouseleave', Swal.resumeTimer)
+      }
+    });
 
     const formData = new FormData()
 
@@ -29,6 +41,32 @@ export default function CreateEvent() {
     formData.append('description', description)
 	  formData.append('startDate', startDate)
 	  formData.append('endDate', endDate)
+
+    let errorMsg = ''
+
+    if(title === '') {
+      errorMsg += 'Event Title is Required'+ '\n'
+    }
+
+    if(description === '') {
+      errorMsg += 'Event Description is Required'+ '\n'
+    }
+
+    if(startDate === '') {
+      errorMsg += 'Event Start Date is Required'+ '\n'
+    }
+
+    if(endDate === '') {
+      errorMsg += 'Event End Date is Required'+ '\n'
+    }
+    if(errorMsg) {
+      return toastMixin.fire({
+        title: errorMsg,
+        icon: 'error'
+      });
+    }
+
+    
 
     await axios.post(`http://localhost:8000/api/event`, formData).then(({data})=>{
       Swal.fire({
@@ -40,19 +78,7 @@ export default function CreateEvent() {
       if(response.status===422){
         setValidationError(response.data.errors)
       }else{
-        var toastMixin = Swal.mixin({
-          toast: true,
-          icon: 'success',
-          title: 'General Title',
-          position: 'top-right',
-          showConfirmButton: false,
-          timer: 1500,
-          timerProgressBar: true,
-          didOpen: (toast) => {
-            toast.addEventListener('mouseenter', Swal.stopTimer)
-            toast.addEventListener('mouseleave', Swal.resumeTimer)
-          }
-        });
+        
         var errors = '';
         setValidationErrorMessage(response.data.message);
         Object.entries(response.data.message).map(([key, value]) => (errors += value +'\n')) 
