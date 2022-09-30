@@ -19,7 +19,7 @@ export default function List() {
         if(!isEmpty(filters)) {
             parma = "?filter="+filters
         }
-        await axios.get(`http://localhost:8000/event${parma}`).then(({data})=>{
+        await axios.get(`http://localhost:8000/api/event${parma}`).then(({data})=>{
             setEvents(data.data)
         })
     }
@@ -30,7 +30,7 @@ export default function List() {
         if(!isEmpty(event.target.value)) {
             parma = "?filter="+event.target.value
         }
-        await axios.get(`http://localhost:8000/event${parma}`).then(({data})=>{
+        await axios.get(`http://localhost:8000/api/event${parma}`).then(({data})=>{
             setEvents(data.data)
         })
     };
@@ -53,7 +53,7 @@ export default function List() {
             return;
           }
 
-          await axios.delete(`http://localhost:8000/event/${id}`).then(({data})=>{
+          await axios.delete(`http://localhost:8000/api/event/${id}`).then(({data})=>{
             Swal.fire({
                 icon:"success",
                 text:data.message

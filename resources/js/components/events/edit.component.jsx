@@ -25,7 +25,7 @@ export default function EditUser() {
   },[])
 
   const fetchEvent = async () => {
-    await axios.get(`http://localhost:8000/event/${id}`).then(({data})=>{
+    await axios.get(`http://localhost:8000/api/event/${id}`).then(({data})=>{
       const { title, description, startDate, endDate } = data.data
       setTitle(title)
       setDescription(description)
@@ -52,7 +52,7 @@ export default function EditUser() {
 	  formData.append('endDate', endDate)
 
 
-    await axios.post(`http://localhost:8000/event/${id}`, formData).then(({data})=>{
+    await axios.post(`http://localhost:8000/api/event/${id}`, formData).then(({data})=>{
       Swal.fire({
         icon:"success",
         text:data.message

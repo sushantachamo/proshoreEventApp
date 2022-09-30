@@ -30,7 +30,7 @@ export default function CreateEvent() {
 	  formData.append('startDate', startDate)
 	  formData.append('endDate', endDate)
 
-    await axios.post(`http://localhost:8000/event`, formData).then(({data})=>{
+    await axios.post(`http://localhost:8000/api/event`, formData).then(({data})=>{
       Swal.fire({
         icon:"success",
         text:data.message
